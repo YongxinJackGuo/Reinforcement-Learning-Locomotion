@@ -1,0 +1,1 @@
+A Reinforcement Learning Project with Application on Quadruped Locomotion using OpenAI Gym and Mujoco Simulation Toolbox
