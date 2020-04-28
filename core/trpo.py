@@ -28,12 +28,6 @@ def trpo_update(policy_net, value_net, batch_actions, batch_values, adv, args):
         val_optimizer.step()  # update value_net parameters
 
 
-
-
-
-
-
-
     # TODO: compute the policy_net loss function for computing the gradient g later on
 
 

@@ -1,5 +1,5 @@
 # Common utilty functions
-
+import torch
 import numpy as np
 
 # Compute KL divergence between two Gaussian distributions
@@ -31,10 +31,31 @@ def get_adv():
 
 # Perform backtracking line search with exponential decay to obtain final update
 def line_search():
-    # TODO: Perfrom line search at each TRPO
+    # TODO: Perform line search at each TRPO
 
     return None
 
+def get_flat_param(model):
+    # TODO: Get the network parameters
+    flat_param = torch.cat([param.view(-1) for param in model.parameters()])
+
+    return flat_param
+
+def set_flat_param(model, flat_param):
+    # TODO: Set the network parameters
+    
+    return None
+
+def get_flat_grad(model):
+    # TODO: Get the network parameter gradients
+    flat_grad = torch.cat([param.grad.view(-1) for param in model.parameters()])
+
+    return None
+
+def set_flat_grad(model, flat_grad):
+    # TODO: Set the network parameter gradients
+
+    return None
 
 class compute_Test:
     def __init__(self, a):
