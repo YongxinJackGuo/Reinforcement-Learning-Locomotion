@@ -2,7 +2,8 @@ import numpy as np
 from gym import utils
 from gym.envs.mujoco import ant_v3
 import torch
-from utils import common
+from utils.common import compute_KL
+
 
 
 class FNNclassifier(torch.nn.Module):
