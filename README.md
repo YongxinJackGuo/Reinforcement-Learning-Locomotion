@@ -1,4 +1,4 @@
-A Reinforcement Learning Project with Application on Quadruped Locomotion using OpenAI Gym and Mujoco Simulation Toolbox  
+Title: A Reinforcement Learning Project with Application on Quadruped Locomotion using OpenAI Gym and Mujoco Simulation Toolbox  
 -agents: target physical model, ant-v3 in this case  
 -model: value and policy network. Value network outputs predicted value, and policy network outputs mean and standard deviation of actions  
 -core:  Trust Region Policy Optimization (TRPO) step  
