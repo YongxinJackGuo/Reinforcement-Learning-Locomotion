@@ -78,13 +78,11 @@ def line_search(stepsize, pi, obs, acs, args):
         # compute criteria
         L = (new_log_prob - old_log_prob).mean()
         kl = compute_KL(old_stats, new_stats)
-        if kl < 1.5 * max_KL and L > 0:
+        if kl < 1.5 * max_KL and L > 0:  # Trust Region Condition
             print('Step {:.2f} size accepted'.format(new_stepsize))
-            break  # Step size accept
+            return True, new_params  # Step size accept
 
-
-
-    return None
+    return False, new_params
 
 def get_flat_param(model):
     # TODO: Get the network parameters

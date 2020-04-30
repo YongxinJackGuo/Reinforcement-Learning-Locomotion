@@ -56,6 +56,7 @@ def trpo_update(policy_net, value_net, batch_actions, batch_values, batch_states
     stepsize = torch.sqrt(2 * max_KL / (x.dot(Hx))) * x
 
     # Backtracking line search with exponential dacay
-    update_net_param = U.line_search(stepsize, policy_net, batch_states, batch_actions, args)
+    success, update_net_param = U.line_search(stepsize, policy_net, batch_states, batch_actions, args)
+    U.set_flat_param(policy_net, flat_param=update_net_param)  # Update the policy net with accepted network parameters
 
-    return None
+    return success
