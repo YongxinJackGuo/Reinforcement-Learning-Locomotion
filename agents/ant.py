@@ -6,18 +6,20 @@ import torch
 class Ant():
     def __init__(self, env, horizon):
         """
-
         :param env: environment
         :param horizon: time steps per batch
-        :param pi: policy net
         """
         self.env = env
         self.horizon = horizon
-        self.pi = pi  # policy net
-        self.ob_dim = env.observation_space.shape[0]
-        self.ac_dim = env.action_space.shape[0]
+        self.ob_dim = env.observation_space.shape[0]  # 111 observation dim
+        self.ac_dim = env.action_space.shape[0]  # 8 action dim
 
-    def get_traj_per_batch(self, pi):
+    def get_traj_per_batch(self, pi, val_net):
+        """
+        :param pi: policy net
+        :param val_net: value net
+        :return: A batch of trajectory information
+        """
         # trajectory sequence: sarsarsar...
         # initialization
         rew = 0
@@ -40,7 +42,7 @@ class Ant():
         while True:
             obs[t] = ob
             # action update
-            ac, vpred = pi.sample_action(ob)
+            ac, vpred = pi.sample_action(ob), val_net(ob)
             acs[t] = ac
             vpreds[t] = vpred
             # step update
