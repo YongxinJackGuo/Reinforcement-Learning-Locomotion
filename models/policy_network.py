@@ -5,7 +5,7 @@ from utils import common as U
 class Policy_Net():
     # TODO: The output of policy net is mean (mu) and standard deviation (std)
     #  of a batch of state input.
-    def __init__(self, ob_dim, ac_dim, *hid_layers):
+    def __init__(self, ob_dim, ac_dim, hid_layers):
         if hid_layers is None: hid_layers = [128, 128]
 
         # Define the network architecture
