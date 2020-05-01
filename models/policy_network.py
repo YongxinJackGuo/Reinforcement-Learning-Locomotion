@@ -9,10 +9,27 @@ class Policy_Net():
         if hid_layers is None: hid_layers = [128, 128]
 
         # Define the network architecture
+        super().__init__()
+        self.fc1 = torch.nn.Linear(ob_dim, 100)
+        self.fc2 = torch.nn.Linear(100, 50)
+        self.fc3 = torch.nn.Linear(50, 25)
+        self.fc4 = torch.nn.Linear(25, ac_dim)
+        self.tanh1 = torch.nn.Tanh()
+        self.tanh2 = torch.nn.Tanh()
+        self.tanh3 = torch.nn.Tanh()
+        self.tanh4 = torch.nn.Tanh()
 
     def forward(self, obs):
-        mu = None
-        std = None
+        x = self.fc1(obs)
+        x = self.tanh1(x)
+        x = self.fc2(x)
+        x = self.tanh2(x)
+        x = self.fc3(x)
+        x = self.tanh3(x)
+        x = self.fc4(x)
+        mu = x
+        log_std = torch.zeros_like(mu)
+        std = torch.exp(log_std)
         return mu, std
 
     # Compute KL divergence between two Gaussian distributions
