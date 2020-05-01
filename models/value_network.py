@@ -8,6 +8,7 @@ class Value_Net():
         # Define the network architecture
 
 
+
     def forward(self, obs):
 
         return None

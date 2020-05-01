@@ -16,7 +16,7 @@ def trpo_update(policy_net, value_net, batch_actions, batch_values, batch_states
     val_MSELoss = nn.MSELoss()  # define a loss function for value network
     # Run L-BFGS couple times
     for _ in range(LBFGS_iters):
-        val_pred = value_net(batch_actions)
+        val_pred = value_net(batch_states)
         val_loss = val_MSELoss(val_pred, batch_values)
 
         # Compute L2 regularization term for value_net loss function

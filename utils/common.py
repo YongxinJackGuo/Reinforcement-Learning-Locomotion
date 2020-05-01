@@ -57,7 +57,7 @@ def get_adv():
 
     # Remember to normalize the advantages for training stability. (x - mu) / std
 
-    return None
+    return
 
 # Perform backtracking line search with exponential decay to obtain final update
 def line_search(stepsize, pi, obs, acs, args):
@@ -86,13 +86,17 @@ def line_search(stepsize, pi, obs, acs, args):
 
 def get_flat_param(model):
     # TODO: Get the network parameters
-    flat_param = torch.cat([param.view(-1) for param in model.parameters()])
+    flat_param = torch.cat([param.view(-1) for param in model.parameters()])  # flatten
 
     return flat_param
 
 def set_flat_param(model, flat_param):
     # TODO: Set the network parameters
-
+    count = 0
+    for param in model.parameters():
+        num_elem = param.numel()
+        param.data.copy_(flat_param[count: count + num_elem].reshape_as(param))
+        count = num_elem
     return None
 
 def get_flat_grad(model):
