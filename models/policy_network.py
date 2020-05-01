@@ -2,11 +2,10 @@ import torch
 import math
 from utils import common as U
 
-class Policy_Net():
+class Policy_Net(torch.nn.Module):
     # TODO: The output of policy net is mean (mu) and standard deviation (std)
     #  of a batch of state input.
-    def __init__(self, ob_dim, ac_dim, hid_layers):
-        if hid_layers is None: hid_layers = [128, 128]
+    def __init__(self, ob_dim, ac_dim):
 
         # Define the network architecture
         super().__init__()
