@@ -97,7 +97,6 @@ def set_flat_param(model, flat_param):
         num_elem = param.numel()
         param.data.copy_(flat_param[count: count + num_elem].reshape_as(param))
         count = num_elem
-    return None
 
 def get_flat_grad(model):
     # TODO: Get the network parameter gradients
