@@ -1,16 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="e70a11c6-8cc8-4757-831d-137636120142" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/utils/testMain.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/utils/testModule.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/trpo.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/trpo.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/policy_network.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/policy_network.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/value_network.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/value_network.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/common.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/common.py" afterDir="false" />
-    </list>
+    <list default="true" id="e70a11c6-8cc8-4757-831d-137636120142" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -213,7 +204,7 @@
       <workItem from="1586072929223" duration="3672000" />
       <workItem from="1586557918522" duration="197000" />
       <workItem from="1587862088365" duration="1401000" />
-      <workItem from="1587871542991" duration="61157000" />
+      <workItem from="1587871542991" duration="61264000" />
     </task>
     <task id="LOCAL-00001" summary="project created">
       <created>1586072414621</created>
