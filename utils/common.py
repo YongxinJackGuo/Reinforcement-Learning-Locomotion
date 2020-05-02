@@ -52,12 +52,27 @@ def compute_KL(new_stats, old_stats):
     return kl.sum(dim=1).mean()
 
 # Get General Advantage Estimate (GAE)
-def get_adv():
+def get_adv(obs, rwd, value_model, gamma, Lambda, ep_len):
     # TODO: get estimate advantage function GAE
-
     # Remember to normalize the advantages for training stability. (x - mu) / std
-
-    return
+    value = value_model(obs)
+    delta = torch.zeros_like(value)
+    adv = torch.zeros_like(value)
+    pass_time = 0
+    for ep in range(len(ep_len)):
+        temp_gae = 0
+        for i in reversed(range(ep_len[ep])):
+            if i == ep_len[ep]-1:
+                delta[i + pass_time] = 0
+            else:
+                delta[i + pass_time] = rwd[i + pass_time] + gamma * value[i+1+pass_time] - value[i+pass_time]
+            temp_gae = temp_gae * gamma * Lambda + delta[i+pass_time]
+            adv[i+pass_time] = temp_gae
+        pass_time += ep_len[ep]
+    mean, std = adv.mean(), adv.std()
+    norm_adv = (adv - mean) / std
+    Q = adv + value
+    return norm_adv, Q
 
 # Perform backtracking line search with exponential decay to obtain final update
 def line_search(stepsize, pi, obs, acs, args):
@@ -86,7 +101,7 @@ def line_search(stepsize, pi, obs, acs, args):
 
 def get_flat_param(model):
     # TODO: Get the network parameters
-    flat_param = torch.cat([param.view(-1) for param in model.parameters()])  # flatten
+    flat_param = torch.cat([param.view(-1) for param in model.parameters()])
 
     return flat_param
 
