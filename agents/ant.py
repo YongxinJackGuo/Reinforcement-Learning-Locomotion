@@ -3,6 +3,7 @@ from gym import utils
 from gym.envs.mujoco import ant_v3
 import torch
 
+
 class Ant():
     def __init__(self, env, horizon):
         """
@@ -14,7 +15,7 @@ class Ant():
         self.ob_dim = env.observation_space.shape[0]  # 111 observation dim
         self.ac_dim = env.action_space.shape[0]  # 8 action dim
 
-    def get_traj_per_batch(self, pi, val_net):
+    def get_traj_per_batch(self, pi, val_net=None, gamma=0.98):
         """
         :param pi: policy net
         :param val_net: value net
@@ -36,15 +37,17 @@ class Ant():
         dones = np.zeros(self.horizon, 'int32')
         acs = np.array([ac for _ in range(self.horizon)])
         obs = np.array([ob for _ in range(self.horizon)])
-        vpreds = np.zeros(self.horizon, 'float32')
-
+        vpreds = torch.zeros(self.horizon)
+        values = torch.zeros(self.horizon)
 
         while True:
             obs[t] = ob
             # action update
-            ac, vpred = pi.sample_action(ob), val_net(ob)
+            ac= pi.sample_action(ob).detach().numpy()
             acs[t] = ac
-            vpreds[t] = vpred
+            if val_net is not None:
+                vpred = val_net(ob)
+                vpreds[t] = vpred
             # step update
             ob, rew, done, _ = self.env.step(ac)
             rews[t] = rew
@@ -54,12 +57,22 @@ class Ant():
             cur_ep_rew += rew
 
             if t > 0 and t % (self.horizon - 1) == 0:
-                yield {"ob" : obs, "ac" : acs, "vpreds" : vpreds,
-                       "rews" : rews, "done": dones, "ep_rew" : ep_rew,
-                       "ep_len" : ep_len}
+                # ob, ac, rews, done, ep_rew, ep_len : nparray
+                # vpreds: torch
+                ep_len.append(cur_ep_len)
+                pass_time = 0
+                for ep in range(len(ep_len)):
+                    temp_value = 0
+                    for i in reversed(range(ep_len[ep])):
+                        temp_value = temp_value * gamma + rews[i + pass_time]
+                        values[i + pass_time] = temp_value
+                    pass_time += ep_len[ep]
+                return {"ob": obs, "ac": acs, "vpreds": vpreds,
+                        "rews": rews, "done": dones, "ep_rew": ep_rew,
+                        "ep_len": ep_len, 'values': values}
 
             # one episode ends
-            if done:
+            if done: #or cur_ep_len == 2000:
                 ep_rew.append(cur_ep_rew)
                 ep_len.append(cur_ep_len)
                 cur_ep_rew = 0
@@ -67,4 +80,3 @@ class Ant():
                 ob = self.env.reset()
 
             t += 1
-
