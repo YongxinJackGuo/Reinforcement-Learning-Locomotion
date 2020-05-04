@@ -31,7 +31,7 @@ class Policy_Net(torch.nn.Module):
         # x = self.tanh3(x)
         x = self.fc4(x)
         mu = x
-        log_std = torch.zeros_like(mu)-1
+        log_std = torch.zeros_like(mu)-0.5
         std = torch.exp(log_std)
         return mu, std
 
@@ -41,7 +41,6 @@ class Policy_Net(torch.nn.Module):
         #  KL(p, q) = log(std_q / std_p) + (std_p + (mean_p - mean_q)^2) / 2std_q^2 - 0.5
         # Compute mu, std of next policy as variable. (Requires grad)
         mu_next, std_next = self.forward(obs)
-
         # Compute mu, std of current policy as fixed constant. (Detached from autograd)
         mu_cur, std_cur = mu_next.detach(), std_next.detach()
         # Compute KL divergence of next policy distributin w.r.t current policy distribution
