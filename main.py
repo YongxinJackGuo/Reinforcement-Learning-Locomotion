@@ -15,19 +15,19 @@ np.random.seed(42)
 
 class Args():
     def __init__(self):
-        self.max_iters = 100
-        self.horizon = 5000 # Batch size: time steps per batch
-        self.episode_long = 2000
+        self.max_iters = 2000
+        self.horizon = 50000 # Batch size: time steps per batch
+        self.episode_long = 50000
         self.l2_reg = 1E-4  # L2 regularization lambda for value loss function
-        self.max_KL = 5 # Max KL divergence threshold for TRPO update
+        self.max_KL = 6 # Max KL divergence threshold for TRPO update
         # Environemnt
         self.env = ant_v3.AntEnv(ctrl_cost_weight=1E-6, contact_cost_weight=1E-3, healthy_reward=0.05)
         self.env.seed(seed)
         self.agent = Ant(self.env, self.horizon)  # create agent
         self.pi_net = Policy_Net(self.agent.ob_dim, self.agent.ac_dim)  # Create Policy Network
         self.value_net = Value_Net(self.agent.ob_dim, 1)  # Create Value Network
-        self.value_net_lr = 0.01  # Declare value net learning rate
-        self.LBFGS_iters = 100  # Declare the number of update times for value_net parameters in one TRPO update
+        self.value_net_lr = 1  # Declare value net learning rate
+        self.LBFGS_iters = 20  # Declare the number of update times for value_net parameters in one TRPO update
         self.cg_iters = 10  # Declare the number of iterations for conjugate gradient algorithm
         self.cg_threshold = 1e-10  # Eearly stopping threshold for conjugate gradient
         self.line_search_alpha = 0.5  # Line search decay rate for TRPO
