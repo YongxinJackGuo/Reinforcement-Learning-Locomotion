@@ -80,28 +80,34 @@ def get_adv(rwd, gamma, Lambda, ep_len, value):
     return norm_adv, Q
 
 # Perform backtracking line search with exponential decay to obtain final update
-def line_search(stepsize, pi, obs, acs, args):
+def line_search(stepsize, pi, obs, acs, args, adv):
     # TODO: Perform line search at each TRPO
-
     alpha, search_iters, max_KL = args.line_search_alpha, args.search_iters, args.max_KL
     cur_params = get_flat_param(pi)  # get initial policy stats
     old_stats = (pi(obs))  # put initial policy stats into a tuple
-    old_log_prob = pi.get_log_prob(obs, acs)  # old policy log probability for actions
-
+    valid_indices = torch.where(adv > 0)[0]
+    invalid_indices = torch.where(adv < 0)[0]
+    obs_for_prob = torch.Tensor(obs)[valid_indices, :].detach().numpy()
+    acs_for_prob = torch.Tensor(acs)[valid_indices, :].detach().numpy()
+    obs_for_prob_n = torch.Tensor(obs)[invalid_indices, :].detach().numpy()
+    acs_for_prob_n = torch.Tensor(acs)[invalid_indices, :].detach().numpy()
+    old_log_prob = pi.get_log_prob(obs_for_prob, acs_for_prob)  # old policy log probability for actions
+    old_log_prob_n = pi.get_log_prob(obs_for_prob_n, acs_for_prob_n)
     for alpha in [alpha**i for i in range(search_iters)]:
         new_stepsize = stepsize * alpha
-        new_params = cur_params + new_stepsize
+        new_params = cur_params - new_stepsize
         set_flat_param(pi, new_params)  # update the model
         new_stats = (pi(obs))  # store new model stats
         # print(new_stats)
-        new_log_prob = pi.get_log_prob(obs, acs)  # new policy log probability for actions
-
+        new_log_prob = pi.get_log_prob(obs_for_prob, acs_for_prob)  # new policy log probability for actions
+        new_log_prob_n = pi.get_log_prob(obs_for_prob_n, acs_for_prob_n)
         # compute criteria
         L = (new_log_prob - old_log_prob).mean()
+        L_n = (new_log_prob_n - old_log_prob_n).mean()
         kl = compute_KL(new_stats, old_stats)
-        print(L)
-        print(kl)
-        if kl < 1.5 * max_KL and L > 0:  # Trust Region Condition
+        # print(L)
+        # print(L_n)
+        if kl < 1.5 * max_KL and L > 0 and L_n <0:  # Trust Region Condition
             print('Step {:.6f} size accepted'.format(new_stepsize.detach().numpy()[0]))
             return True, new_params  # Step size accept
 
