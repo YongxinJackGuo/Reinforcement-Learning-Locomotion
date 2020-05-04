@@ -18,8 +18,9 @@ def trpo_update(policy_net, value_net, batch_actions, batch_values, batch_states
     log_prob_cur = policy_net.get_log_prob(batch_states, batch_actions).detach()
 
     # Construct a policy loss Function: L = (pi_prob_next / pi_prob_cur) * Advantages
+    test = (torch.exp(log_prob_next - log_prob_cur))
     L_policy = -1 * (torch.exp(log_prob_next - log_prob_cur)).t() * adv# negative sign for minimization convention
-    L_policy = L_policy.mean()
+    L_policy = L_policy.sum()/adv.shape[0]
 
     # Compute the policy gradient
     pi_grads = torch.autograd.grad(L_policy, policy_net.parameters())
@@ -40,7 +41,7 @@ def trpo_update(policy_net, value_net, batch_actions, batch_values, batch_states
     stepsize = torch.sqrt(2 * max_KL / (x.dot(Hx))) * x
 
     # Backtracking line search with exponential dacay
-    success, update_net_param = U.line_search(stepsize, policy_net, batch_states, batch_actions, args)
+    success, update_net_param = U.line_search(stepsize, policy_net, batch_states, batch_actions, args, adv)
     U.set_flat_param(policy_net, flat_param=update_net_param)  # Update the policy net with accepted network parameters
 
     # TODO: update the critic, the value_net parameters. One optimizer_val here.
@@ -59,7 +60,7 @@ def trpo_update(policy_net, value_net, batch_actions, batch_values, batch_states
             val_loss += l2_reg * params.pow(2).sum()
         val_optimizer.zero_grad()
         val_loss.backward(retain_graph=True)
+        # print(val_loss)
         return val_loss
-
     val_optimizer.step(closure)  # update value_net parameters
     return success, value_net, policy_net
