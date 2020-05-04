@@ -7,6 +7,7 @@ from models.value_network import Value_Net
 import torch
 from utils import common
 from core import trpo
+import time
 
 seed = 42
 torch.manual_seed(seed)
@@ -46,6 +47,7 @@ def train(args):
     gamma = args.gamma
     value_net.net_initial(agent, pi_net)
     for iters in range(args.max_iters):
+        time1 = time.time()
         bacth_dic = agent.get_traj_per_batch(pi_net, value_net)#.__next__()
         print(bacth_dic['rews'].mean())
         adv, Q = common.get_adv(bacth_dic['rews'], gamma, Lambda, bacth_dic['ep_len'],
@@ -53,6 +55,8 @@ def train(args):
         success, value_net, pi_net = trpo.trpo_update(pi_net, value_net, bacth_dic['ac'], Q,
                                                       bacth_dic['ob'], adv, args)
         # assert success is True, "Linear Search False"
+        time2 = time.time()
+        print('time %f' % (time2-time1))
         print(success)
     args.value_net = value_net
     args.pi_net = pi_net
