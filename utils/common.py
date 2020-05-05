@@ -14,7 +14,7 @@ def cg(b, kl, pi, cg_iter, threshold):
     grad = torch.autograd.grad(kl, pi.parameters(), create_graph=True)
     for _ in range(cg_iter):
         hvp = compute_hvp(kl, d, pi, grad)
-        beta = torch.dot(d, r) / torch.dot(d, hvp)  # stepsize along for solution
+        beta = torch.dot(r, r) / torch.dot(d, hvp)  # stepsize along for solution
         x += beta * d  # update solution along conjugate direction
         r_prev = r.clone() # store old r
         r -= beta * hvp  # update non-conjugate direction
