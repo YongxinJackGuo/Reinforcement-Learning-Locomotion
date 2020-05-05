@@ -9,7 +9,7 @@ class Value_Net(torch.nn.Module):
         if value_dim is None: value_dim = 1
 
         # Define the network architecture
-        super().__init__()
+        super(Value_Net, self).__init__()
         self.fc1 = torch.nn.Linear(ob_dim, 100)
         self.fc2 = torch.nn.Linear(100, 50)
         self.fc3 = torch.nn.Linear(50, 25)
@@ -22,17 +22,17 @@ class Value_Net(torch.nn.Module):
         obs = torch.Tensor(obs)
         x = self.fc1(obs)
         # x = self.tanh1(x)
-        x = torch.relu(x)
+        x = torch.tanh(x)
         x = self.fc2(x)
-        x = torch.relu(x)
+        x = torch.tanh(x)
         # x = self.tanh2(x)
         x = self.fc3(x)
-        x = torch.relu(x)
+        x = torch.tanh(x)
         # x = self.tanh3(x)
         x = self.fc4(x)
         return x
 
-    def net_initial(self, agent, policy_net, gamma=0.98, max_iter=20, lr=0.01):
+    def net_initial(self, agent, policy_net, max_iter=30, lr=0.01):
         # initial the value network for the first time
         dic = agent.get_traj_per_batch(policy_net)
         reward = dic['rews']
@@ -41,11 +41,11 @@ class Value_Net(torch.nn.Module):
         values = dic['values']
         reward_tensor = torch.Tensor(reward)
         dataset = TensorDataset(torch.Tensor(obs), values)
-        dataloader = DataLoader(dataset, batch_size=500, shuffle=True)
-        loss_func = torch.nn.MSELoss()
 
-        optimizer = torch.optim.SGD(self.parameters(), lr=lr, momentum=0.9)
+        loss_func = torch.nn.MSELoss()
+        optimizer = torch.optim.Adam(self.parameters(), lr=lr)
         for iter in range(max_iter):
+            dataloader = DataLoader(dataset, batch_size=500, shuffle=True)
             for batch_idx, (data, target) in enumerate(dataloader):
                 optimizer.zero_grad()
                 predict = self.forward(data)
