@@ -19,7 +19,7 @@ def trpo_update(policy_net, value_net, batch_actions, batch_values, batch_states
 
     # Construct a policy loss Function: L = (pi_prob_next / pi_prob_cur) * Advantages
     test = (torch.exp(log_prob_next - log_prob_cur))
-    L_policy = -1 * (torch.exp(log_prob_next - log_prob_cur)).t() * adv# negative sign for minimization convention
+    L_policy = (torch.exp(log_prob_next - log_prob_cur)).t() * adv# negative sign for minimization convention
     L_policy = L_policy.sum()/adv.shape[0]
 
     # Compute the policy gradient
@@ -33,7 +33,7 @@ def trpo_update(policy_net, value_net, batch_actions, batch_values, batch_states
     # Get KL-divergence as pytorch Variable
     KL = policy_net.get_KL(batch_states)
     # Compute x = H^-1 * g using conjugate gradient method
-    x = U.cg(-pi_grads, KL, policy_net, cg_iters, cg_threshold)  # -pi_grads because we took a minus sign at L before
+    x = U.cg(pi_grads, KL, policy_net, cg_iters, cg_threshold)  # -pi_grads because we took a minus sign at L before
     # Compute Hx
     KL = KL.mean()
     grad = torch.autograd.grad(KL, policy_net.parameters(), create_graph=True)
@@ -46,12 +46,14 @@ def trpo_update(policy_net, value_net, batch_actions, batch_values, batch_states
 
     # TODO: update the critic, the value_net parameters. One optimizer_val here.
     # Use L-BFGS algorithm for minimizing the value loss function (限域拟牛顿法)
-    val_optimizer = optim.LBFGS(value_net.parameters(), lr=value_net_lr, max_iter=20)
+
     # define a loss function for value network
     # Run L-BFGS couple times
-    val_MSELoss = nn.MSELoss()
+
     dic = args.agent.get_traj_per_batch(policy_net)
     values = dic['values']
+    val_optimizer = optim.LBFGS(value_net.parameters(), lr=value_net_lr, max_iter=20)
+    val_MSELoss = nn.MSELoss()
     def closure():
         val_pred = value_net(batch_states)
         val_loss = val_MSELoss(val_pred.flatten(), values)
