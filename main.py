@@ -19,7 +19,7 @@ np.random.seed(42)
 
 class Args():
     def __init__(self):
-        self.max_iters = 2000
+        self.max_iters = 500
         self.horizon = 5000 # Batch size: time steps per batch
         self.episode_long = 5000
         self.l2_reg = 1E-4  # L2 regularization lambda for value loss function
@@ -32,8 +32,8 @@ class Args():
         self.value_net = Value_Net(self.agent.ob_dim, 1)  # Create Value Network
         self.value_net_lr = 1  # Declare value net learning rate
         self.LBFGS_iters = 20  # Declare the number of update times for value_net parameters in one TRPO update
-        self.cg_iters = 10  # Declare the number of iterations for conjugate gradient algorithm
-        self.cg_threshold = 1e-10  # Eearly stopping threshold for conjugate gradient
+        self.cg_iters = 500  # Declare the number of iterations for conjugate gradient algorithm
+        self.cg_threshold = 1e-2  # Eearly stopping threshold for conjugate gradient
         self.line_search_alpha = 0.5  # Line search decay rate for TRPO
         self.search_iters = 10  # Line search iterations
         self.gamma = 1
@@ -50,10 +50,14 @@ def train(args):
     gamma = args.gamma
     value_net.net_initial(agent, pi_net)
     value_list = list()
+    len_list = list()
     for iters in range(args.max_iters):
         bacth_dic = agent.get_traj_per_batch(pi_net, value_net)#.__next__()
-        value = sum(bacth_dic['ep_len'])/ len(bacth_dic['ep_len'])
+        lens = sum(bacth_dic['ep_len']) / len(bacth_dic['ep_len'])
+        value = sum(bacth_dic['rews']) / len(bacth_dic['ep_len'])
+        print("len %f" % lens)
         print(value)
+        len_list.append(lens)
         value_list.append(value)
         adv, Q = common.get_adv(bacth_dic['rews'], gamma, Lambda, bacth_dic['ep_len'],
                                 bacth_dic['vpreds'])
@@ -65,6 +69,7 @@ def train(args):
     args.value_net = value_net
     args.pi_net = pi_net
     np.savetxt('hopper.csv', [np.array(value_list)], delimiter=',', fmt='%f')
+    np.savetxt('hopper_len.csv', [np.array(len_list)], delimiter=',', fmt='%f')
     return args
 
 def show(args, iter=10000):
