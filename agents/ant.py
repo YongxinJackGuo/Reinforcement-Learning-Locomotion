@@ -1,6 +1,7 @@
 import numpy as np
 from gym import utils
 from gym.envs.mujoco import ant_v3
+from gym.envs.mujoco import hopper
 import torch
 
 
@@ -15,7 +16,7 @@ class Ant():
         self.ob_dim = env.observation_space.shape[0]  # 111 observation dim
         self.ac_dim = env.action_space.shape[0]  # 8 action dim
 
-    def get_traj_per_batch(self, pi, val_net=None, gamma=0.98):
+    def get_traj_per_batch(self, pi, val_net=None, gamma=1):
         """
         :param pi: policy net
         :param val_net: value net
@@ -43,7 +44,7 @@ class Ant():
         while True:
             obs[t] = ob
             # action update
-            ac= pi.sample_action(ob).detach().numpy()
+            ac = pi.sample_action(ob).detach().numpy()
             acs[t] = ac
             if val_net is not None:
                 vpred = val_net(ob)
