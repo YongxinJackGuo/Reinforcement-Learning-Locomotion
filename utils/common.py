@@ -14,7 +14,7 @@ def cg(b, kl, pi, cg_iter, threshold):
     grad = torch.autograd.grad(kl, pi.parameters(), create_graph=True)
     for _ in range(cg_iter):
         hvp = compute_hvp(kl, d, pi, grad)
-        beta = -1 * torch.dot(d, r) / torch.dot(d, hvp)  # stepsize along for solution
+        beta = torch.dot(d, r) / torch.dot(d, hvp)  # stepsize along for solution
         x += beta * d  # update solution along conjugate direction
         r_prev = r.clone() # store old r
         r -= beta * hvp  # update non-conjugate direction
@@ -24,10 +24,11 @@ def cg(b, kl, pi, cg_iter, threshold):
 
         if r_curr < threshold:
             break
+    print(r_curr)
     return x
 
 # Perform Hessian-vector product
-def compute_hvp(kl, v, pi, grad):
+def compute_hvp(kl, v, pi, grad, damping = 0.01):
     # TODO: compute Hessian-vector product from KL
     #  In this case, the Hessian matrix is Fisher Information Matrix (FIM)
     # grad = torch.autograd.grad(kl, pi.parameters(), create_graph=True)  # Compute d(KL)/dx
@@ -35,7 +36,7 @@ def compute_hvp(kl, v, pi, grad):
     grad_v = torch.dot(flat_grad, v)  # Compute d(KL)/dx * v
     grad_grad_v = torch.autograd.grad(grad_v, pi.parameters(), retain_graph=True)  # Compute d/dx * d(KL)/dx * v. Hessian-vector product
     flat_grad_grad_v = torch.cat([gg.view(-1) for gg in grad_grad_v])  # Flatten
-    return flat_grad_grad_v  # Can add a damping term to it
+    return flat_grad_grad_v + v * damping# Can add a damping term to it
 
 # Compute KL divergence between two different policy nets
 def compute_KL(new_stats, old_stats):
@@ -53,7 +54,7 @@ def compute_KL(new_stats, old_stats):
     mu_old, std_old = old_stats[0], old_stats[1]
     # print(mu_old)
     # Compute KL divergence of next policy distributin w.r.t current policy distribution
-    kl = torch.log(std_old / std_new) + (std_new + (mu_new - mu_old).pow(2)) / (2 * std_old.pow(2)) - 0.5
+    kl = torch.log(std_old / std_new) + (std_new.pow(2) + (mu_new - mu_old).pow(2)) / (2 * std_old.pow(2)) - 0.5
     # print(kl)
     return kl.sum(dim=1).mean()
 
@@ -68,7 +69,7 @@ def get_adv(rwd, gamma, Lambda, ep_len, value):
         temp_gae = 0
         for i in reversed(range(ep_len[ep])):
             if i == ep_len[ep]-1:
-                delta[i + pass_time] = 0
+                delta[i + pass_time] = rwd[i+pass_time] - value[i + pass_time]
             else:
                 delta[i + pass_time] = rwd[i + pass_time] + gamma * value[i+1+pass_time] - value[i+pass_time]
             temp_gae = temp_gae * gamma * Lambda + delta[i+pass_time]
@@ -95,7 +96,7 @@ def line_search(stepsize, pi, obs, acs, args, adv):
     old_log_prob_n = pi.get_log_prob(obs_for_prob_n, acs_for_prob_n)
     for alpha in [alpha**i for i in range(search_iters)]:
         new_stepsize = stepsize * alpha
-        new_params = cur_params - new_stepsize
+        new_params = cur_params + new_stepsize
         set_flat_param(pi, new_params)  # update the model
         new_stats = (pi(obs))  # store new model stats
         # print(new_stats)
@@ -105,7 +106,7 @@ def line_search(stepsize, pi, obs, acs, args, adv):
         L = (new_log_prob - old_log_prob).mean()
         L_n = (new_log_prob_n - old_log_prob_n).mean()
         kl = compute_KL(new_stats, old_stats)
-        # print(L)
+        # print(kl)
         # print(L_n)
         if kl < 1.5 * max_KL and L > 0 and L_n <0:  # Trust Region Condition
             print('Step {:.6f} size accepted'.format(new_stepsize.detach().numpy()[0]))
