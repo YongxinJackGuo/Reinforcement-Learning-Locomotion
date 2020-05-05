@@ -23,9 +23,9 @@ def cg(b, kl, pi, cg_iter, threshold):
         d = r - delta * d
 
         if r_curr < threshold:
-            break
+            return x
     print(r_curr)
-    return x
+    return False
 
 # Perform Hessian-vector product
 def compute_hvp(kl, v, pi, grad, damping = 0.01):
@@ -35,7 +35,7 @@ def compute_hvp(kl, v, pi, grad, damping = 0.01):
     flat_grad = torch.cat([g.view(-1) for g in grad])  # Flatten
     grad_v = torch.dot(flat_grad, v)  # Compute d(KL)/dx * v
     grad_grad_v = torch.autograd.grad(grad_v, pi.parameters(), retain_graph=True)  # Compute d/dx * d(KL)/dx * v. Hessian-vector product
-    flat_grad_grad_v = torch.cat([gg.view(-1) for gg in grad_grad_v])  # Flatten
+    flat_grad_grad_v = torch.cat([gg.contiguous().view(-1) for gg in grad_grad_v])  # Flatten
     return flat_grad_grad_v + v * damping# Can add a damping term to it
 
 # Compute KL divergence between two different policy nets
@@ -85,6 +85,7 @@ def line_search(stepsize, pi, obs, acs, args, adv):
     # TODO: Perform line search at each TRPO
     alpha, search_iters, max_KL = args.line_search_alpha, args.search_iters, args.max_KL
     cur_params = get_flat_param(pi)  # get initial policy stats
+    old_params = cur_params.clone()
     old_stats = (pi(obs))  # put initial policy stats into a tuple
     valid_indices = torch.where(adv > 0)[0]
     invalid_indices = torch.where(adv < 0)[0]
@@ -112,7 +113,7 @@ def line_search(stepsize, pi, obs, acs, args, adv):
             print('Step {:.6f} size accepted'.format(new_stepsize.detach().numpy()[0]))
             return True, new_params  # Step size accept
 
-    return False, new_params
+    return False, old_params
 
 def get_flat_param(model):
     # TODO: Get the network parameters
