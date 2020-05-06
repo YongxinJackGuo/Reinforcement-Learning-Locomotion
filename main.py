@@ -67,8 +67,8 @@ def train(args):
         print('iter %d' % (iters))
         print(success)
         if iters % 100 == 0:
-            np.savetxt('hopper.csv', [np.array(value_list)], delimiter=',', fmt='%f')
-            np.savetxt('hopper_len.csv', [np.array(len_list)], delimiter=',', fmt='%f')
+            np.savetxt('walker.csv', [np.array(value_list)], delimiter=',', fmt='%f')
+            np.savetxt('walker_len.csv', [np.array(len_list)], delimiter=',', fmt='%f')
     args.value_net = value_net
     args.pi_net = pi_net
     return args
