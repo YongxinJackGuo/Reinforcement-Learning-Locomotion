@@ -27,7 +27,7 @@ class Args():
         # Environemnt
         self.env = Walker2dEnv() #ant_v3.AntEnv(ctrl_cost_weight=1E-6, contact_cost_weight=1E-3, healthy_reward=0.05)
         # self.env.seed(seed)
-        self.agent = Ant(self.env, self.horizon,self.episode_long)  # create agent
+        self.agent = Ant(self.env, self.horizon)  # create agent/ the self.episode_long cannot be passed to agent
         self.pi_net = Policy_Net(self.agent.ob_dim, self.agent.ac_dim)  # Create Policy Network
         self.value_net = Value_Net(self.agent.ob_dim, 1)  # Create Value Network
         self.value_net_lr = 1  # Declare value net learning rate
