@@ -12,7 +12,7 @@ from core import trpo
 from matplotlib import pyplot as plt
 import time
 
-seed = 0
+seed = 42
 torch.manual_seed(seed)
 np.random.seed(0)
 
@@ -36,7 +36,7 @@ class Args():
         self.env.seed(seed)
         self.agent = Ant(self.env, self.horizon)  # create agent
         self.env = Walker2dEnv() #ant_v3.AntEnv(ctrl_cost_weight=1E-6, contact_cost_weight=1E-3, healthy_reward=0.05)
-        # self.env.seed(seed)
+        self.env.seed(seed)
         self.agent = Ant(self.env, self.horizon,self.episode_long)  # create agent
         self.pi_net = Policy_Net(self.agent.ob_dim, self.agent.ac_dim)  # Create Policy Network
         self.value_net = Value_Net(self.agent.ob_dim, 1)  # Create Value Network

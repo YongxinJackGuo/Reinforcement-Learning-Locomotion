@@ -4,7 +4,6 @@
     <list default="true" id="e70a11c6-8cc8-4757-831d-137636120142" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/value_network.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/value_network.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -244,7 +243,7 @@
       <workItem from="1586557918522" duration="197000" />
       <workItem from="1587862088365" duration="1401000" />
       <workItem from="1587871542991" duration="63123000" />
-      <workItem from="1588701425430" duration="11857000" />
+      <workItem from="1588701425430" duration="12137000" />
     </task>
     <task id="LOCAL-00001" summary="project created">
       <created>1586072414621</created>
