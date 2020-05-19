@@ -12,20 +12,20 @@ from core import trpo
 from matplotlib import pyplot as plt
 import time
 
-seed = 42
+seed = 0
 torch.manual_seed(seed)
-np.random.seed(42)
+np.random.seed(0)
 
 
 class Args():
     def __init__(self):
         self.max_iters = 500
-        self.horizon = 5000 # Batch size: time steps per batch
+        self.horizon = 50000 # Batch size: time steps per batch
         self.episode_long = 5000
         self.l2_reg = 1E-4  # L2 regularization lambda for value loss function
-        self.max_KL = 0.01 # Max KL divergence threshold for TRPO update
+        self.max_KL = 0.01  # Max KL divergence threshold for TRPO update
         # Environemnt
-        self.env = HopperEnv() #ant_v3.AntEnv(ctrl_cost_weight=1E-6, contact_cost_weight=1E-3, healthy_reward=0.05)
+        self.env = ant_v3.AntEnv(ctrl_cost_weight=1E-6, contact_cost_weight=1E-3, healthy_reward=0.05)
         self.env.seed(seed)
         self.agent = Ant(self.env, self.horizon)  # create agent
         self.pi_net = Policy_Net(self.agent.ob_dim, self.agent.ac_dim)  # Create Policy Network
@@ -52,17 +52,17 @@ def train(args):
     value_list = list()
     len_list = list()
     for iters in range(args.max_iters):
-        bacth_dic = agent.get_traj_per_batch(pi_net, value_net)#.__next__()
-        lens = sum(bacth_dic['ep_len']) / len(bacth_dic['ep_len'])
-        value = sum(bacth_dic['rews']) / len(bacth_dic['ep_len'])
+        batch_dic = agent.get_traj_per_batch(pi_net, value_net)#.__next__()
+        lens = sum(batch_dic['ep_len']) / len(batch_dic['ep_len'])
+        value = sum(batch_dic['rews']) / len(batch_dic['ep_len'])
         print("len %f" % lens)
         print(value)
         len_list.append(lens)
         value_list.append(value)
-        adv, Q = common.get_adv(bacth_dic['rews'], gamma, Lambda, bacth_dic['ep_len'],
-                                bacth_dic['vpreds'])
-        success, value_net, pi_net = trpo.trpo_update(pi_net, value_net, bacth_dic['ac'], Q,
-                                                      bacth_dic['ob'], adv, args)
+        adv, Q = common.get_adv(batch_dic['rews'], gamma, Lambda, batch_dic['ep_len'],
+                                batch_dic['vpreds'])
+        success, value_net, pi_net = trpo.trpo_update(pi_net, value_net, batch_dic['ac'], Q,
+                                                      batch_dic['ob'], adv, args)
         # assert success is True, "Linear Search False"
         print('iter %d' % (iters))
         print(success)

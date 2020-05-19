@@ -33,7 +33,7 @@ class Value_Net(torch.nn.Module):
         return x
 
     def net_initial(self, agent, policy_net, max_iter=30, lr=0.01):
-        # initial the value network for the first time
+        # initialize the value network for the first time
         dic = agent.get_traj_per_batch(policy_net)
         reward = dic['rews']
         ep_len = dic['ep_len']
