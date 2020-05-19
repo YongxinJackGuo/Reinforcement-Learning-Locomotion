@@ -6,13 +6,14 @@ import torch
 
 
 class Ant():
-    def __init__(self, env, horizon):
+    def __init__(self, env, horizon, epsi):
         """
         :param env: environment
         :param horizon: time steps per batch
         """
         self.env = env
         self.horizon = horizon
+        self.epsi = epsi
         self.ob_dim = env.observation_space.shape[0]  # 111 observation dim
         self.ac_dim = env.action_space.shape[0]  # 8 action dim
 
@@ -73,7 +74,7 @@ class Ant():
                         "ep_len": ep_len, 'values': values}
 
             # one episode ends
-            if done: #or cur_ep_len == 2000:
+            if done or cur_ep_len == self.epsi:
                 ep_rew.append(cur_ep_rew)
                 ep_len.append(cur_ep_len)
                 cur_ep_rew = 0

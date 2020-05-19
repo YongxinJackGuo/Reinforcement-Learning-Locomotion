@@ -6,11 +6,45 @@ import scipy.optimize
 
 # Trust Region Policy Optimization Update per Batch
 
+def get_flat_params_from(model):
+    params = []
+    for param in model.parameters():
+        params.append(param.view(-1))
+
+    flat_params = torch.cat(params)
+    return flat_params
+
+
+
 def trpo_update(policy_net, value_net, batch_actions, batch_values, batch_states, adv, args):
 
     value_net_lr, l2_reg, max_KL = args.value_net_lr, args.l2_reg, args.max_KL
     LBFGS_iters, cg_iters, cg_threshold = args.LBFGS_iters, args.cg_iters, args.cg_threshold
 
+    # def get_flat_grad_from(inputs, grad_grad=False):
+    #     grads = []
+    #     for param in inputs:
+    #         if grad_grad:
+    #             grads.append(param.grad.grad.view(-1))
+    #         else:
+    #             if param.grad is None:
+    #                 grads.append(torch.zeros(param.view(-1).shape))
+    #             else:
+    #                 grads.append(param.grad.view(-1))
+    #
+    #     flat_grad = torch.cat(grads)
+    #     return flat_grad
+    #
+    # def get_flat_params_from(model):
+    #     params = []
+    #     for param in model.parameters():
+    #         params.append(param.view(-1))
+    #
+    #     flat_params = torch.cat(params)
+    #     return flat_params
+    #
+    #
+    #
     # def get_value_loss(flat_params):
     #     U.set_flat_param(value_net, torch.Tensor(flat_params))
     #     for param in value_net.parameters():
@@ -22,11 +56,11 @@ def trpo_update(policy_net, value_net, batch_actions, batch_values, batch_states
     #     # weight decay
     #     for param in value_net.parameters():
     #         value_loss += param.pow(2).sum() * l2_reg
-    #     value_loss.backward()
-    #     return value_loss.item(), U.get_flat_param(value_net.parameters()).numpy()
+    #     value_loss.backward(retain_graph=True)
+    #     return value_loss.item(), get_flat_grad_from(value_net.parameters()).detach().numpy().astype(float)
     #
     # flat_params, _, opt_info = scipy.optimize.fmin_l_bfgs_b(get_value_loss,
-    #                                                         U.get_flat_param(value_net).detach().cpu().numpy(),
+    #                                                         get_flat_params_from(value_net).detach().numpy(),
     #                                                         maxiter=25)
     # U.set_flat_param(value_net, torch.Tensor(flat_params))
 
